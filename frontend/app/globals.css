@@ -1,27 +1,26 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — "evidence instrument" system.
- * Light values are the defaults; dark values override via
- * prefers-color-scheme. Do not repurpose --evidence outside the
- * relevance meter.
+ * 디자인 토큰 — "evidence instrument" 시스템.
+ * 라이트 값이 기본값이며, 다크 값은 prefers-color-scheme으로
+ * 덮어씁니다. --evidence는 relevance meter 외에는 재사용하지 마세요.
  */
 :root {
-  --paper: #f5f6f8;
-  --ink: #14181f;
-  --muted: #6b7280;
-  --line: #e2e5ea;
-  --primary: #3538cd;
-  --evidence: #b45309;
+  --paper: #fbf8f3;
+  --ink: #2a2620;
+  --muted: #8c8378;
+  --line: #ebe4d9;
+  --primary: #e8623f;
+  --evidence: #e5a23a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #0e1117;
-    --ink: #e7e9ee;
-    --line: #232833;
-    --muted: #8a93a2;
-    /* --primary and --evidence stay the same in dark mode. */
+    --paper: #1a1712;
+    --ink: #f1ece3;
+    --muted: #9c9184;
+    --line: #302a22;
+    /* --primary와 --evidence는 다크 모드에서도 동일합니다. */
   }
 }
 
@@ -42,6 +41,8 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 @keyframes fade-up {

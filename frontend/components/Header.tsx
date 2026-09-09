@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
-  { href: "/", label: "Upload" },
-  { href: "/ask", label: "Ask" },
-  { href: "/eval", label: "Evaluation" },
+  { href: "/", label: "올리기" },
+  { href: "/ask", label: "질문하기" },
+  { href: "/eval", label: "품질 비교" },
 ] as const;
 
 export default function Header() {
@@ -17,11 +17,11 @@ export default function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="font-display text-lg font-medium tracking-tight text-ink"
+          className="font-display text-lg font-extrabold tracking-tight text-ink"
         >
-          PDF Evidence
+          📄 PDF에게
         </Link>
-        <nav aria-label="Primary" className="flex items-center gap-6">
+        <nav aria-label="Primary" className="flex items-center gap-2">
           {NAV_LINKS.map(({ href, label }) => {
             const isActive =
               href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -31,10 +31,10 @@ export default function Header() {
                 href={href}
                 aria-current={isActive ? "page" : undefined}
                 className={
-                  "font-mono text-xs uppercase tracking-wide transition-colors " +
+                  "rounded-full px-3 py-1.5 font-body text-sm font-medium transition-colors " +
                   (isActive
-                    ? "text-primary"
-                    : "text-muted hover:text-ink")
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted hover:bg-line/60 hover:text-ink")
                 }
               >
                 {label}

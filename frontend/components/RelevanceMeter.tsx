@@ -10,7 +10,7 @@ export default function RelevanceMeter({ score }: { score: number }) {
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label="Relevance score"
+        aria-label={`관련도 ${score.toFixed(2)}`}
         className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
       >
         <div

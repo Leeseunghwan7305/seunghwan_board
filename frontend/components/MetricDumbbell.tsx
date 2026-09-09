@@ -23,7 +23,7 @@ export default function MetricDumbbell({
 
       <div
         role="img"
-        aria-label={`${label}: dense ${dense.toFixed(2)}, hybrid ${hybrid.toFixed(2)}, delta ${delta}`}
+        aria-label={`${label}: dense ${dense.toFixed(2)}, hybrid ${hybrid.toFixed(2)}, 차이 ${delta}`}
         className="relative h-6 flex-1"
       >
         <div className="absolute top-1/2 h-px w-full -translate-y-1/2 bg-line" />

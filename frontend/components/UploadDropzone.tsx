@@ -8,14 +8,12 @@ type Status = "idle" | "uploading" | "done" | "error";
 
 export default function UploadDropzone() {
   const [status, setStatus] = useState<Status>("idle");
-  const [fileName, setFileName] = useState<string | null>(null);
   const [chunks, setChunks] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const inputId = useId();
 
   async function handleFile(file: File) {
-    setFileName(file.name);
     setStatus("uploading");
     setErrorMessage(null);
     try {
@@ -23,7 +21,7 @@ export default function UploadDropzone() {
       setChunks(result.chunks);
       setStatus("done");
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Upload failed.");
+      setErrorMessage(err instanceof Error ? err.message : "업로드에 실패했어요.");
       setStatus("error");
     }
   }
@@ -54,21 +52,24 @@ export default function UploadDropzone() {
         onDragLeave={() => setIsDragActive(false)}
         onDrop={onDrop}
         className={
-          "flex flex-col items-center gap-3 rounded-md border px-6 py-10 text-center transition-colors " +
+          "flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-center shadow-sm transition-colors " +
           (isDragActive
-            ? "border-primary"
-            : "border-line hover:border-primary")
+            ? "border-primary bg-primary/5"
+            : "border-line bg-paper hover:border-primary/60")
         }
       >
+        <span aria-hidden className="text-3xl">
+          📄
+        </span>
         <p className="font-body text-sm text-ink">
-          Drop a PDF here, or{" "}
+          여기에 PDF를 끌어다 놓으세요
+          <br />
           <label
             htmlFor={inputId}
             className="cursor-pointer font-medium text-primary underline underline-offset-2"
           >
-            choose a file
+            또는 클릭해서 파일 고르기
           </label>
-          .
         </p>
         <input
           id={inputId}
@@ -81,18 +82,20 @@ export default function UploadDropzone() {
       </div>
 
       <p aria-live="polite" className="font-mono text-xs text-muted">
-        {status === "idle" && "No file yet — drop a PDF to start."}
-        {status === "uploading" && `Uploading ${fileName}…`}
+        {status === "idle" && "아직 올린 파일이 없어요."}
+        {status === "uploading" && "올리는 중…"}
         {status === "done" && (
           <>
-            Indexed {chunks} passages.{" "}
+            문장 {chunks}개를 담았어요! 🎉{" "}
             <Link href="/ask" className="text-primary hover:underline">
-              Ask a question →
+              질문하러 가기 →
             </Link>
           </>
         )}
         {status === "error" && (
-          <span className="font-medium text-ink">Error: {errorMessage}</span>
+          <span className="font-medium text-ink">
+            앗, 문제가 생겼어요 — {errorMessage}
+          </span>
         )}
       </p>
     </div>

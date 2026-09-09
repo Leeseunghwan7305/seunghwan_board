@@ -12,8 +12,8 @@ export function metricDelta(dense: number, hybrid: number): string {
 }
 
 export const METRIC_LABELS: { key: keyof Metrics; label: string }[] = [
-  { key: "faithfulness", label: "Faithfulness" },
-  { key: "answer_relevancy", label: "Answer relevancy" },
-  { key: "context_precision", label: "Context precision" },
-  { key: "context_recall", label: "Context recall" },
+  { key: "faithfulness", label: "충실도" },
+  { key: "answer_relevancy", label: "답변 관련성" },
+  { key: "context_precision", label: "문맥 정밀도" },
+  { key: "context_recall", label: "문맥 재현율" },
 ];
