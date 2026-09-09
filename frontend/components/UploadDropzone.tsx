@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { uploadDocument } from "@/lib/api";
 
 type Status = "idle" | "uploading" | "done" | "error";
@@ -12,7 +12,6 @@ export default function UploadDropzone() {
   const [chunks, setChunks] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
 
   async function handleFile(file: File) {
@@ -32,6 +31,7 @@ export default function UploadDropzone() {
   function onDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setIsDragActive(false);
+    if (isBusy) return;
     const file = event.dataTransfer.files?.[0];
     if (file) handleFile(file);
   }
@@ -71,7 +71,6 @@ export default function UploadDropzone() {
           .
         </p>
         <input
-          ref={inputRef}
           id={inputId}
           type="file"
           accept="application/pdf"
