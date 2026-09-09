@@ -21,7 +21,7 @@ def _db():
     init_db()
 
 
-def _fixed_embed(texts):
+def _fixed_embed(texts, api_key=None):
     return [[0.01] * 1536 for _ in texts]
 
 

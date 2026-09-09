@@ -1,7 +1,7 @@
 import hashlib
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.deps import get_db
+from app.deps import get_db, get_openai_key
 from app.db import models
 from app.ingest.parse import parse_pdf
 from app.ingest.chunk import chunk_pages
@@ -13,7 +13,11 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 
 
 @router.post("")
-async def upload(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    api_key: str = Depends(get_openai_key),
+):
     data = await file.read()
     content_hash = hashlib.sha256(data).hexdigest()
     existing = db.query(models.Document).filter(models.Document.content_hash == content_hash).first()
@@ -25,7 +29,7 @@ async def upload(file: UploadFile = File(...), db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     chunks = chunk_pages(pages)
-    embeddings = embed_texts([c["content"] for c in chunks])
+    embeddings = embed_texts([c["content"] for c in chunks], api_key)
     doc_id = store_document(file.filename, len(pages), chunks, embeddings, db, content_hash=content_hash)
     clear_answers()
     return {"document_id": str(doc_id), "chunks": len(chunks), "cached": False}

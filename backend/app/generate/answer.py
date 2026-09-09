@@ -1,8 +1,6 @@
 from openai import OpenAI
 from app.config import settings
 
-_client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
 _SYSTEM = (
     "너는 업로드된 문서에 근거해서만 답하는 어시스턴트야. "
     "아래 [근거] 각 항목은 (p.페이지) 형식으로 출처가 있어. "
@@ -11,12 +9,13 @@ _SYSTEM = (
 )
 
 
-def generate_answer(query: str, hits: list[dict]) -> dict:
+def generate_answer(query: str, hits: list[dict], api_key: str) -> dict:
     if not hits or hits[0]["score"] < settings.SIMILARITY_THRESHOLD:
         return {"answer": "문서에 근거가 없습니다.", "citations": []}
 
     context = "\n".join(f"(p.{h['page']}) {h['content']}" for h in hits)
-    resp = _client.chat.completions.create(
+    client = OpenAI(api_key=api_key)
+    resp = client.chat.completions.create(
         model=settings.CHAT_MODEL,
         temperature=0.2,
         messages=[

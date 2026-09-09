@@ -11,10 +11,10 @@ def _load_qa_set() -> list[dict]:
     return json.loads(_QA_PATH.read_text(encoding="utf-8"))
 
 
-def build_samples(qa_set: list[dict], db, mode: str) -> list[dict]:
+def build_samples(qa_set: list[dict], db, mode: str, api_key: str) -> list[dict]:
     rows = []
     for item in qa_set:
-        out = answer_for_eval(item["question"], db, mode)
+        out = answer_for_eval(item["question"], db, mode, api_key)
         rows.append({
             "question": item["question"],
             "answer": out["answer"],
@@ -24,10 +24,10 @@ def build_samples(qa_set: list[dict], db, mode: str) -> list[dict]:
     return rows
 
 
-def run_ab_eval(db) -> dict:
+def run_ab_eval(db, api_key: str) -> dict:
     qa_set = _load_qa_set()
     results = {}
     for mode in ("dense", "hybrid"):
-        samples = build_samples(qa_set, db, mode)
-        results[mode] = score_samples(samples, METRIC_NAMES)
+        samples = build_samples(qa_set, db, mode, api_key)
+        results[mode] = score_samples(samples, METRIC_NAMES, api_key)
     return results

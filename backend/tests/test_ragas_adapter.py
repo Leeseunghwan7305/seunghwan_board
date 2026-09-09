@@ -7,7 +7,7 @@ def test_score_samples_returns_metric_dict():
     # 어댑터 내부의 실제 RAGAS 실행부(_run_ragas)를 mock — 버전 무관하게 계약만 검증
     with patch.object(ragas_adapter, "_run_ragas",
                       return_value={"faithfulness": 0.9, "answer_relevancy": 0.8}):
-        out = ragas_adapter.score_samples(samples, ["faithfulness", "answer_relevancy"])
+        out = ragas_adapter.score_samples(samples, ["faithfulness", "answer_relevancy"], "test-key")
     assert out == {"faithfulness": 0.9, "answer_relevancy": 0.8}
 
 def test_module_imports_without_ragas_installed():

@@ -8,7 +8,7 @@ def test_retrieve_hits_dense_skips_sparse_and_rerank():
          patch.object(pipeline, "dense_search", return_value=dense) as ds, \
          patch.object(pipeline, "sparse_search") as ss, \
          patch.object(pipeline, "rerank") as rr:
-        hits = pipeline.retrieve_hits("q", db=None, mode="dense", top_n=1)
+        hits = pipeline.retrieve_hits("q", db=None, mode="dense", top_n=1, api_key="k")
     ds.assert_called_once()
     ss.assert_not_called()
     rr.assert_not_called()
@@ -20,7 +20,7 @@ def test_retrieve_hits_hybrid_uses_all_stages():
          patch.object(pipeline, "sparse_search", return_value=[]), \
          patch.object(pipeline, "reciprocal_rank_fusion", return_value=[]) as rrf, \
          patch.object(pipeline, "rerank", return_value=[{"chunk_id":"A","page":1,"content":"x","score":1.0}]) as rr:
-        hits = pipeline.retrieve_hits("q", db=None, mode="hybrid", top_n=3)
+        hits = pipeline.retrieve_hits("q", db=None, mode="hybrid", top_n=3, api_key="k")
     rrf.assert_called_once()
     rr.assert_called_once()
     assert hits[0]["content"] == "x"
@@ -29,14 +29,14 @@ def test_answer_for_eval_returns_answer_and_contexts():
     hits = [{"chunk_id":"A","page":1,"content":"Refunds 30 days","score":5.0}]
     with patch.object(pipeline, "retrieve_hits", return_value=hits), \
          patch.object(pipeline, "generate_answer", return_value={"answer":"30 days [p.1].","citations":[]}):
-        out = pipeline.answer_for_eval("q", db=None, mode="hybrid")
+        out = pipeline.answer_for_eval("q", db=None, mode="hybrid", api_key="k")
     assert out["answer"] == "30 days [p.1]."
     assert out["contexts"] == ["Refunds 30 days"]
 
 def test_retrieve_hits_bad_mode():
     import pytest
     with pytest.raises(ValueError):
-        pipeline.retrieve_hits("q", db=None, mode="nope")
+        pipeline.retrieve_hits("q", db=None, mode="nope", api_key="k")
 
 def test_answer_for_eval_dense_reaches_generate_answer_without_keyerror():
     from unittest.mock import MagicMock
@@ -44,9 +44,9 @@ def test_answer_for_eval_dense_reaches_generate_answer_without_keyerror():
     dense_hits = [{"chunk_id": "A", "page": 1, "content": "Refunds 30 days", "rank": 0, "score": 0.7}]
     with patch.object(pipeline, "embed_texts", return_value=[[0.0]*1536]), \
          patch.object(pipeline, "dense_search", return_value=dense_hits), \
-         patch.object(answer_mod, "_client") as client:
-        client.chat.completions.create.return_value = MagicMock(
+         patch.object(answer_mod, "OpenAI") as MockOpenAI:
+        MockOpenAI.return_value.chat.completions.create.return_value = MagicMock(
             choices=[MagicMock(message=MagicMock(content="30 days [p.1]."))])
-        out = pipeline.answer_for_eval("q", db=None, mode="dense")
+        out = pipeline.answer_for_eval("q", db=None, mode="dense", api_key="k")
     assert out["answer"] == "30 days [p.1]."
     assert out["contexts"] == ["Refunds 30 days"]
