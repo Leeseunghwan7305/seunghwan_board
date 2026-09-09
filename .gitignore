@@ -2,3 +2,4 @@ backend/.venv/
 __pycache__/
 *.pyc
 .env
+backend/app/eval/results_latest.json
