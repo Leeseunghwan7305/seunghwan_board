@@ -14,6 +14,12 @@ describe("api", () => {
     const call = vi.mocked(globalThis.fetch).mock.calls[0];
     expect(call[0]).toContain("/chat");
     expect(JSON.parse(call[1]?.body as string).query).toBe("refund?");
+    // node 환경에서는 getKey()가 항상 null이라 헤더가 붙지 않아야 해요.
+    expect(
+      (call[1]?.headers as Record<string, string> | undefined)?.[
+        "X-OpenAI-Key"
+      ]
+    ).toBeUndefined();
   });
   it("getLatestEval returns null on 404", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404, json: async () => ({}) } as Response);
