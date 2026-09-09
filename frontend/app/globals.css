@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — "evidence instrument" system.
+ * Light values are the defaults; dark values override via
+ * prefers-color-scheme. Do not repurpose --evidence outside the
+ * relevance meter.
+ */
+:root {
+  --paper: #f5f6f8;
+  --ink: #14181f;
+  --muted: #6b7280;
+  --line: #e2e5ea;
+  --primary: #3538cd;
+  --evidence: #b45309;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0e1117;
+    --ink: #e7e9ee;
+    --line: #232833;
+    --muted: #8a93a2;
+    /* --primary and --evidence stay the same in dark mode. */
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-evidence: var(--evidence);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
