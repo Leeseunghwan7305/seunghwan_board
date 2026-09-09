@@ -18,3 +18,11 @@ def test_rerank_falls_back_when_model_unavailable():
     with patch.object(rerank, "_get_model", side_effect=RuntimeError("no model")):
         out = rerank.rerank("q", hits, top_n=3)
     assert out == hits[:3]
+
+
+def test_rerank_fallback_scores_pass_threshold():
+    from app.config import settings
+    hits = [{"chunk_id": "A", "page": 1, "content": "x", "score": 0.02}]
+    with patch.object(rerank, "_get_model", side_effect=RuntimeError("no model")):
+        out = rerank.rerank("q", hits, top_n=3)
+    assert out[0]["score"] >= settings.SIMILARITY_THRESHOLD

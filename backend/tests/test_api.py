@@ -9,3 +9,11 @@ def test_chat_endpoint_contract():
         r = client.post("/chat", json={"query": "환불?"})
     assert r.status_code == 200
     assert r.json()["citations"][0]["page"] == 3
+
+
+def test_documents_rejects_non_pdf():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    r = client.post("/documents", files={"file": ("bad.pdf", b"this is not a pdf", "application/pdf")})
+    assert r.status_code == 400

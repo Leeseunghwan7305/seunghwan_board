@@ -2,7 +2,10 @@ import fitz
 
 
 def parse_pdf(data: bytes) -> list[dict]:
-    doc = fitz.open(stream=data, filetype="pdf")
+    try:
+        doc = fitz.open(stream=data, filetype="pdf")
+    except Exception as e:
+        raise ValueError(f"PDF를 열 수 없습니다: {e}")
     pages = []
     for i, page in enumerate(doc, start=1):
         text = page.get_text().strip()
