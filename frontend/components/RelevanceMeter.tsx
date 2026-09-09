@@ -4,7 +4,7 @@ export default function RelevanceMeter({ score }: { score: number }) {
   const pct = scoreToPct(score);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5">
       <div
         role="meter"
         aria-valuenow={pct}

@@ -33,17 +33,38 @@ type HistoryEntry = {
   citations: Citation[];
 };
 
-function renderAnswer(answer: string) {
+// entry.citations 순서대로, 처음 등장하는 각 page에 1부터 번호를 매깁니다.
+// 예: citations의 page가 [3, 3, 5, 1] 이면 refIndex는 {3: 1, 5: 2, 1: 3}.
+function buildRefIndex(citations: Citation[]): Map<number, number> {
+  const refIndex = new Map<number, number>();
+  for (const citation of citations) {
+    if (!refIndex.has(citation.page)) {
+      refIndex.set(citation.page, refIndex.size + 1);
+    }
+  }
+  return refIndex;
+}
+
+function renderAnswer(answer: string, refIndex: Map<number, number>) {
   const parts = answer.split(/(\[p\.\d+\])/g);
-  return parts.map((part, index) =>
-    /^\[p\.\d+\]$/.test(part) ? (
-      <span key={index} className="font-medium text-primary">
-        {part}
-      </span>
-    ) : (
-      <span key={index}>{part}</span>
-    )
-  );
+  return parts.map((part, index) => {
+    const match = /^\[p\.(\d+)\]$/.exec(part);
+    if (!match) return <span key={index}>{part}</span>;
+    const page = Number(match[1]);
+    const ref = refIndex.get(page);
+    if (ref === undefined) {
+      // 안전한 대비책: 매핑에 없는 인용은 원문 그대로 보여줘요.
+      return <span key={index}>{part}</span>;
+    }
+    return (
+      <sup
+        key={index}
+        className="mx-0.5 inline-flex h-[1.3em] min-w-[1.3em] align-super items-center justify-center rounded-full bg-primary/15 px-1 font-mono text-[0.7em] font-medium text-primary"
+      >
+        {ref}
+      </sup>
+    );
+  });
 }
 
 export default function Home() {
@@ -181,19 +202,20 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col gap-10 motion-safe:animate-[fade-up_0.4s_ease-out]">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-          PDF에게 물어보세요
+    <div className="flex flex-col gap-12 motion-safe:animate-[fade-up_0.4s_ease-out]">
+      {/* 히어로 */}
+      <div className="flex flex-col items-center gap-4 pt-4 text-center sm:pt-8">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          <span className="gradient-text">문서에게 직접 물어보세요</span>
         </h1>
-        <p className="font-body text-sm text-muted sm:text-base">
-          문서를 올리고 뭐든 물어보세요. 답이 어느 문장에서 나왔는지까지 콕
-          짚어드려요.
+        <p className="max-w-md font-body text-sm text-muted sm:text-base">
+          PDF를 올리면 AI가 그 문서에서 찾아 답하고, 근거 문장까지
+          보여줘요.
         </p>
       </div>
 
       {/* 1. 업로드 영역 */}
-      <section className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-5 shadow-sm sm:p-6">
+      <section className="relative flex flex-col gap-3 rounded-2xl border border-line bg-card p-5 shadow-sm sm:p-6">
         {!isUnlocked ? (
           <>
             <div
@@ -204,14 +226,14 @@ export default function Home() {
               onDragLeave={() => setIsDragActive(false)}
               onDrop={onDrop}
               className={
-                "flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors " +
+                "relative flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors " +
                 (isDragActive
-                  ? "border-primary bg-primary/5"
+                  ? "gradient-border border-transparent bg-primary/5"
                   : "border-line bg-paper hover:border-primary/60")
               }
             >
-              <span aria-hidden className="text-3xl">
-                📄
+              <span aria-hidden className="text-2xl text-primary">
+                ✦
               </span>
               <div className="flex flex-col gap-1">
                 <p className="font-body text-base font-medium text-ink">
@@ -249,7 +271,7 @@ export default function Home() {
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-primary/10 px-4 py-3">
             <p className="font-body text-sm font-medium text-ink">
-              ✅ 문장 {doc.chunks}개 담았어요 · 이제 뭐든 물어보세요 👇
+              ✓ 문장 {doc.chunks}개 학습 완료 · 이제 무엇이든 물어보세요
             </p>
             <button
               type="button"
@@ -266,24 +288,28 @@ export default function Home() {
         <>
           {/* 2. 질문 영역 */}
           <section className="flex flex-col gap-3">
-            <form onSubmit={handleAskSubmit} className="flex gap-2">
+            <form
+              onSubmit={handleAskSubmit}
+              className="focus-glow flex items-center gap-2 rounded-2xl border border-line bg-card p-2 shadow-sm transition-shadow"
+            >
               <input
                 type="text"
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
-                placeholder="이 문서, 뭐가 궁금해요?"
+                placeholder="문서에게 무엇이든 물어보세요 ✦"
                 aria-label="질문"
                 disabled={askStatus === "asking"}
-                className="flex-1 rounded-full border border-line bg-card px-5 py-3 font-body text-base text-ink placeholder:text-muted focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-paper disabled:text-muted"
+                className="flex-1 bg-transparent px-3 py-2.5 font-body text-base text-ink placeholder:text-muted focus:outline-none disabled:cursor-not-allowed disabled:text-muted"
               />
               <button
                 type="submit"
                 disabled={
                   askStatus === "asking" || question.trim().length === 0
                 }
-                className="shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
+                aria-label="물어보기"
+                className="gradient-cta shrink-0 rounded-full px-4 py-2.5 font-body text-sm font-medium text-paper transition-opacity disabled:opacity-40"
               >
-                {askStatus === "asking" ? "찾아보는 중…" : "물어보기"}
+                {askStatus === "asking" ? "…" : "↑"}
               </button>
             </form>
 
@@ -301,6 +327,12 @@ export default function Home() {
               ))}
             </div>
 
+            {askStatus === "asking" && (
+              <p className="font-mono text-xs text-muted motion-safe:animate-shimmer-pulse">
+                문서를 살펴보는 중…
+              </p>
+            )}
+
             {askStatus === "error" && askError && (
               <p className="font-body text-sm text-ink">
                 앗, 문제가 생겼어요 — {askError}
@@ -314,6 +346,7 @@ export default function Home() {
               {history.map((entry, index) => {
                 const hasNoEvidence =
                   entry.answer === NO_EVIDENCE || entry.citations.length === 0;
+                const refIndex = buildRefIndex(entry.citations);
                 return (
                   <div
                     key={entry.id}
@@ -325,22 +358,23 @@ export default function Home() {
                     </p>
                     {hasNoEvidence ? (
                       <p className="font-body text-base text-ink">
-                        음, 문서에서 관련 내용을 못 찾았어요 😅
+                        문서에서 관련 내용을 찾지 못했어요.
                       </p>
                     ) : (
                       <>
                         <p className="font-body text-base leading-relaxed text-ink">
-                          {renderAnswer(entry.answer)}
+                          {renderAnswer(entry.answer, refIndex)}
                         </p>
                         <div className="flex flex-col gap-3 pt-1">
                           <h3 className="font-mono text-xs uppercase tracking-wide text-muted">
-                            이 답의 근거예요
+                            출처
                           </h3>
                           <div className="flex flex-col gap-3">
                             {entry.citations.map((citation, i) => (
                               <EvidenceCard
                                 key={`${citation.page}-${i}`}
                                 citation={citation}
+                                index={i + 1}
                               />
                             ))}
                           </div>
@@ -359,12 +393,12 @@ export default function Home() {
             className="flex scroll-mt-20 flex-col gap-4 border-t border-line pt-8"
           >
             <div className="flex flex-col gap-2">
-              <h2 className="font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-                검색, 얼마나 똑똑해졌을까? 👀
+              <h2 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+                <span className="gradient-text">검색 성능 비교</span>
               </h2>
               <p className="max-w-xl font-body text-sm text-muted">
-                벡터만 쓰는 dense와, 키워드·재정렬을 더한 hybrid를 RAGAS로 채점해
-                비교해요.
+                벡터만 쓰는 dense와, 키워드·재정렬을 더한 hybrid를 RAGAS로
+                측정해 비교해요.
               </p>
             </div>
 
@@ -372,9 +406,9 @@ export default function Home() {
               type="button"
               onClick={handleRunEval}
               disabled={evalRunning || evalLoadingInitial}
-              className="w-fit shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
+              className="gradient-cta w-fit shrink-0 rounded-full px-5 py-3 font-body text-sm font-medium text-paper transition-opacity disabled:opacity-40"
             >
-              {evalRunning ? "채점 중이에요…" : "평가 돌려보기"}
+              {evalRunning ? "측정하는 중…" : "성능 측정하기"}
             </button>
 
             <div aria-live="polite" className="flex flex-col gap-4">
@@ -390,7 +424,7 @@ export default function Home() {
 
               {!evalLoadingInitial && !evalResult && !evalRunning && (
                 <p className="font-mono text-xs text-muted">
-                  아직 안 돌려봤어요. 한 번 볼까요?
+                  아직 측정 안 했어요. 한 번 볼까요?
                 </p>
               )}
 

@@ -4,9 +4,9 @@ export default function Header() {
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
         <a
           href="#top"
-          className="font-display text-lg font-extrabold tracking-tight text-ink"
+          className="font-display text-lg font-bold tracking-tight text-ink"
         >
-          🥕 PDF 물어봐요
+          <span className="gradient-text">✦ PDF AI</span>
         </a>
         <a
           href="#eval"

@@ -13,7 +13,6 @@ export default function MetricDumbbell({
   const hybridPct = scoreToPct(hybrid);
   const delta = metricDelta(dense, hybrid);
   const improved = hybrid > dense;
-  const worsened = hybrid < dense;
   const left = Math.min(densePct, hybridPct);
   const width = Math.abs(hybridPct - densePct);
 
@@ -36,7 +35,7 @@ export default function MetricDumbbell({
           style={{ left: `${densePct}%` }}
         />
         <span
-          className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary transition-[left] duration-300 motion-reduce:transition-none"
+          className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_srgb,var(--primary)_25%,transparent)] transition-[left] duration-300 motion-reduce:transition-none"
           style={{ left: `${hybridPct}%` }}
         />
       </div>
@@ -44,7 +43,7 @@ export default function MetricDumbbell({
       <span
         className={
           "w-16 shrink-0 text-right font-mono text-sm tabular-nums " +
-          (improved ? "text-primary" : worsened ? "text-muted" : "text-ink")
+          (improved ? "text-primary" : "text-muted")
         }
       >
         {delta}

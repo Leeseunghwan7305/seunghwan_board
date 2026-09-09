@@ -6,23 +6,26 @@
  * 덮어씁니다. --evidence는 relevance meter 외에는 재사용하지 마세요.
  */
 :root {
-  --paper: #f6f7f8;
+  --paper: #f7f8fb;
   --card: #ffffff;
-  --ink: #212124;
-  --muted: #868b94;
-  --line: #eaebee;
-  --primary: #ff6f0f;
-  --evidence: #f5a623;
+  --ink: #12141c;
+  --muted: #6b7180;
+  --line: #e6e8ef;
+  --primary: #6d5ef7;
+  --primary-2: #8b5cf6;
+  --evidence: #14b8a6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #171719;
-    --card: #212124;
-    --ink: #f4f4f5;
-    --muted: #8e939b;
-    --line: #2a2a2e;
-    /* --primary와 --evidence는 다크 모드에서도 동일합니다. */
+    --paper: #0b0d13;
+    --card: #14171f;
+    --ink: #edeff5;
+    --muted: #8a90a0;
+    --line: #232733;
+    --primary: #7c6cf7;
+    --primary-2: #9b7cf8;
+    --evidence: #2dd4bf;
   }
 }
 
@@ -33,6 +36,7 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-primary: var(--primary);
+  --color-primary-2: var(--primary-2);
   --color-evidence: var(--evidence);
 
   --font-display: var(--font-display);
@@ -48,6 +52,42 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.gradient-text {
+  background-image: linear-gradient(90deg, var(--primary), var(--primary-2));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.gradient-cta {
+  background-image: linear-gradient(90deg, var(--primary), var(--primary-2));
+  box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.focus-glow:focus-within {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+  border-color: var(--primary);
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -57,6 +97,20 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes shimmer-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-shimmer-pulse {
+  animation: shimmer-pulse 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
