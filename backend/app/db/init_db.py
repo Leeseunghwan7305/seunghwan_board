@@ -19,3 +19,9 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS chunks_embedding_idx ON chunks "
             "USING hnsw (embedding vector_cosine_ops)"
         ))
+        conn.execute(text(
+            "ALTER TABLE documents ADD COLUMN IF NOT EXISTS content_hash text"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS documents_content_hash_idx ON documents (content_hash)"
+        ))
