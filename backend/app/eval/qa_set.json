@@ -1,0 +1,12 @@
+[
+  {"question": "How many days do I have to get a refund?", "ground_truth": "Refunds are available within 30 days of purchase."},
+  {"question": "What is the refund window?", "ground_truth": "Refunds are available within 30 days of purchase."},
+  {"question": "Can I return an item after a month?", "ground_truth": "Refunds are available within 30 days of purchase."},
+  {"question": "How long does shipping take?", "ground_truth": "Shipping takes 2 business days."},
+  {"question": "When will my order arrive?", "ground_truth": "Shipping takes 2 business days."},
+  {"question": "Is delivery fast?", "ground_truth": "Shipping takes 2 business days."},
+  {"question": "What is the shipping duration in business days?", "ground_truth": "Shipping takes 2 business days."},
+  {"question": "Tell me about the return policy.", "ground_truth": "Refunds are available within 30 days of purchase."},
+  {"question": "How soon are packages delivered?", "ground_truth": "Shipping takes 2 business days."},
+  {"question": "What is the deadline for a refund?", "ground_truth": "Refunds are available within 30 days of purchase."}
+]
