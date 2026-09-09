@@ -25,7 +25,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDF에게 물어보세요 — 문서 질문 도구",
+  title: "🥕 PDF 물어봐요",
 };
 
 export default function RootLayout({
@@ -40,7 +40,9 @@ export default function RootLayout({
     >
       <body className={`${gothicA1Body.className} min-h-screen antialiased`}>
         <Header />
-        <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+        <main id="top" className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+          {children}
+        </main>
       </body>
     </html>
   );

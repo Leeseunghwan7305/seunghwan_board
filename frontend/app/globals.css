@@ -6,26 +6,29 @@
  * 덮어씁니다. --evidence는 relevance meter 외에는 재사용하지 마세요.
  */
 :root {
-  --paper: #fbf8f3;
-  --ink: #2a2620;
-  --muted: #8c8378;
-  --line: #ebe4d9;
-  --primary: #e8623f;
-  --evidence: #e5a23a;
+  --paper: #f6f7f8;
+  --card: #ffffff;
+  --ink: #212124;
+  --muted: #868b94;
+  --line: #eaebee;
+  --primary: #ff6f0f;
+  --evidence: #f5a623;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #1a1712;
-    --ink: #f1ece3;
-    --muted: #9c9184;
-    --line: #302a22;
+    --paper: #171719;
+    --card: #212124;
+    --ink: #f4f4f5;
+    --muted: #8e939b;
+    --line: #2a2a2e;
     /* --primary와 --evidence는 다크 모드에서도 동일합니다. */
   }
 }
 
 @theme inline {
   --color-paper: var(--paper);
+  --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
