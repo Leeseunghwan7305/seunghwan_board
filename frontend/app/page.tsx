@@ -262,173 +262,171 @@ export default function Home() {
         )}
       </section>
 
-      {/* 2. 질문 영역 */}
-      <section className="flex flex-col gap-3">
-        {!isUnlocked && (
-          <p className="font-body text-sm text-muted">
-            PDF부터 올려야 질문할 수 있어요!
-          </p>
-        )}
-        <form onSubmit={handleAskSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            placeholder="이 문서, 뭐가 궁금해요?"
-            aria-label="질문"
-            disabled={!isUnlocked || askStatus === "asking"}
-            className="flex-1 rounded-full border border-line bg-card px-5 py-3 font-body text-base text-ink placeholder:text-muted focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-paper disabled:text-muted"
-          />
-          <button
-            type="submit"
-            disabled={
-              !isUnlocked ||
-              askStatus === "asking" ||
-              question.trim().length === 0
-            }
-            className="shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
-          >
-            {askStatus === "asking" ? "찾아보는 중…" : "물어보기"}
-          </button>
-        </form>
-
-        {isUnlocked && (
-          <div className="flex flex-wrap gap-2">
-            {EXAMPLE_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => handleAsk(q)}
+      {isUnlocked && (
+        <>
+          {/* 2. 질문 영역 */}
+          <section className="flex flex-col gap-3">
+            <form onSubmit={handleAskSubmit} className="flex gap-2">
+              <input
+                type="text"
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="이 문서, 뭐가 궁금해요?"
+                aria-label="질문"
                 disabled={askStatus === "asking"}
-                className="rounded-full border border-line bg-card px-3 py-1.5 font-body text-xs text-muted transition-colors hover:border-primary/60 hover:text-ink disabled:opacity-40"
+                className="flex-1 rounded-full border border-line bg-card px-5 py-3 font-body text-base text-ink placeholder:text-muted focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-paper disabled:text-muted"
+              />
+              <button
+                type="submit"
+                disabled={
+                  askStatus === "asking" || question.trim().length === 0
+                }
+                className="shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
               >
-                {q}
+                {askStatus === "asking" ? "찾아보는 중…" : "물어보기"}
               </button>
-            ))}
-          </div>
-        )}
+            </form>
 
-        {askStatus === "error" && askError && (
-          <p className="font-body text-sm text-ink">
-            앗, 문제가 생겼어요 — {askError}
-          </p>
-        )}
-      </section>
-
-      {/* 3. 답변 피드 */}
-      {history.length > 0 && (
-        <section className="flex flex-col gap-6">
-          {history.map((entry, index) => {
-            const hasNoEvidence =
-              entry.answer === NO_EVIDENCE || entry.citations.length === 0;
-            return (
-              <div
-                key={entry.id}
-                ref={index === 0 ? latestEntryRef : undefined}
-                className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-5 shadow-sm sm:p-6"
-              >
-                <p className="font-mono text-xs text-muted">
-                  Q. {entry.question}
-                </p>
-                {hasNoEvidence ? (
-                  <p className="font-body text-base text-ink">
-                    음, 문서에서 관련 내용을 못 찾았어요 😅
-                  </p>
-                ) : (
-                  <>
-                    <p className="font-body text-base leading-relaxed text-ink">
-                      {renderAnswer(entry.answer)}
-                    </p>
-                    <div className="flex flex-col gap-3 pt-1">
-                      <h3 className="font-mono text-xs uppercase tracking-wide text-muted">
-                        이 답의 근거예요
-                      </h3>
-                      <div className="flex flex-col gap-3">
-                        {entry.citations.map((citation, i) => (
-                          <EvidenceCard
-                            key={`${citation.page}-${i}`}
-                            citation={citation}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </section>
-      )}
-
-      {/* 4. 품질 비교 영역 */}
-      <section
-        id="eval"
-        className="flex scroll-mt-20 flex-col gap-4 border-t border-line pt-8"
-      >
-        <div className="flex flex-col gap-2">
-          <h2 className="font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-            검색, 얼마나 똑똑해졌을까? 👀
-          </h2>
-          <p className="max-w-xl font-body text-sm text-muted">
-            벡터만 쓰는 dense와, 키워드·재정렬을 더한 hybrid를 RAGAS로 채점해
-            비교해요.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleRunEval}
-          disabled={evalRunning || evalLoadingInitial}
-          className="w-fit shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
-        >
-          {evalRunning ? "채점 중이에요…" : "평가 돌려보기"}
-        </button>
-
-        <div aria-live="polite" className="flex flex-col gap-4">
-          {evalError && (
-            <p className="font-body text-sm text-ink">
-              앗, 문제가 생겼어요 — {evalError}
-            </p>
-          )}
-
-          {evalLoadingInitial && (
-            <p className="font-mono text-xs text-muted">불러오는 중…</p>
-          )}
-
-          {!evalLoadingInitial && !evalResult && !evalRunning && (
-            <p className="font-mono text-xs text-muted">
-              아직 안 돌려봤어요. 한 번 볼까요?
-            </p>
-          )}
-
-          {evalResult && (
-            <div className="flex flex-col gap-5 rounded-2xl border border-line bg-card px-5 py-6 shadow-sm">
-              {METRIC_LABELS.map(({ key, label }) => (
-                <MetricDumbbell
-                  key={key}
-                  label={label}
-                  dense={evalResult.dense[key]}
-                  hybrid={evalResult.hybrid[key]}
-                />
+            <div className="flex flex-wrap gap-2">
+              {EXAMPLE_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => handleAsk(q)}
+                  disabled={askStatus === "asking"}
+                  className="rounded-full border border-line bg-card px-3 py-1.5 font-body text-xs text-muted transition-colors hover:border-primary/60 hover:text-ink disabled:opacity-40"
+                >
+                  {q}
+                </button>
               ))}
-              <div className="flex flex-wrap items-center gap-4 border-t border-line pt-4 font-mono text-xs text-muted">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-muted" aria-hidden />
-                  dense
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full bg-primary"
-                    aria-hidden
-                  />
-                  hybrid
-                </span>
-                <span>오른쪽 = 개선폭</span>
-              </div>
             </div>
+
+            {askStatus === "error" && askError && (
+              <p className="font-body text-sm text-ink">
+                앗, 문제가 생겼어요 — {askError}
+              </p>
+            )}
+          </section>
+
+          {/* 3. 답변 피드 */}
+          {history.length > 0 && (
+            <section className="flex flex-col gap-6">
+              {history.map((entry, index) => {
+                const hasNoEvidence =
+                  entry.answer === NO_EVIDENCE || entry.citations.length === 0;
+                return (
+                  <div
+                    key={entry.id}
+                    ref={index === 0 ? latestEntryRef : undefined}
+                    className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-5 shadow-sm sm:p-6"
+                  >
+                    <p className="font-mono text-xs text-muted">
+                      Q. {entry.question}
+                    </p>
+                    {hasNoEvidence ? (
+                      <p className="font-body text-base text-ink">
+                        음, 문서에서 관련 내용을 못 찾았어요 😅
+                      </p>
+                    ) : (
+                      <>
+                        <p className="font-body text-base leading-relaxed text-ink">
+                          {renderAnswer(entry.answer)}
+                        </p>
+                        <div className="flex flex-col gap-3 pt-1">
+                          <h3 className="font-mono text-xs uppercase tracking-wide text-muted">
+                            이 답의 근거예요
+                          </h3>
+                          <div className="flex flex-col gap-3">
+                            {entry.citations.map((citation, i) => (
+                              <EvidenceCard
+                                key={`${citation.page}-${i}`}
+                                citation={citation}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </section>
           )}
-        </div>
-      </section>
+
+          {/* 4. 품질 비교 영역 */}
+          <section
+            id="eval"
+            className="flex scroll-mt-20 flex-col gap-4 border-t border-line pt-8"
+          >
+            <div className="flex flex-col gap-2">
+              <h2 className="font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
+                검색, 얼마나 똑똑해졌을까? 👀
+              </h2>
+              <p className="max-w-xl font-body text-sm text-muted">
+                벡터만 쓰는 dense와, 키워드·재정렬을 더한 hybrid를 RAGAS로 채점해
+                비교해요.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleRunEval}
+              disabled={evalRunning || evalLoadingInitial}
+              className="w-fit shrink-0 rounded-full bg-primary px-5 py-3 font-body text-sm font-medium text-paper shadow-sm transition-opacity disabled:opacity-40"
+            >
+              {evalRunning ? "채점 중이에요…" : "평가 돌려보기"}
+            </button>
+
+            <div aria-live="polite" className="flex flex-col gap-4">
+              {evalError && (
+                <p className="font-body text-sm text-ink">
+                  앗, 문제가 생겼어요 — {evalError}
+                </p>
+              )}
+
+              {evalLoadingInitial && (
+                <p className="font-mono text-xs text-muted">불러오는 중…</p>
+              )}
+
+              {!evalLoadingInitial && !evalResult && !evalRunning && (
+                <p className="font-mono text-xs text-muted">
+                  아직 안 돌려봤어요. 한 번 볼까요?
+                </p>
+              )}
+
+              {evalResult && (
+                <div className="flex flex-col gap-5 rounded-2xl border border-line bg-card px-5 py-6 shadow-sm">
+                  {METRIC_LABELS.map(({ key, label }) => (
+                    <MetricDumbbell
+                      key={key}
+                      label={label}
+                      dense={evalResult.dense[key]}
+                      hybrid={evalResult.hybrid[key]}
+                    />
+                  ))}
+                  <div className="flex flex-wrap items-center gap-4 border-t border-line pt-4 font-mono text-xs text-muted">
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className="h-2 w-2 rounded-full bg-muted"
+                        aria-hidden
+                      />
+                      dense
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className="h-2 w-2 rounded-full bg-primary"
+                        aria-hidden
+                      />
+                      hybrid
+                    </span>
+                    <span>오른쪽 = 개선폭</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
