@@ -20,3 +20,11 @@ def test_dense_orders_by_similarity():
     assert hits[0]["content"] == "환불"   # 쿼리와 가장 가까운 것
     assert hits[0]["rank"] == 0
     db.close()
+
+def test_dense_search_includes_similarity_score():
+    db = SessionLocal()
+    store_document("sc.pdf", 1, [{"page": 1, "chunk_index": 0, "content": "score check"}], [[1.0] + [0.0]*1535], db)
+    hits = dense_search([1.0] + [0.0]*1535, db, k=1)
+    assert "score" in hits[0]
+    assert 0.0 <= hits[0]["score"] <= 1.0
+    db.close()

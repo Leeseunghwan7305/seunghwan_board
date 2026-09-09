@@ -37,3 +37,16 @@ def test_retrieve_hits_bad_mode():
     import pytest
     with pytest.raises(ValueError):
         pipeline.retrieve_hits("q", db=None, mode="nope")
+
+def test_answer_for_eval_dense_reaches_generate_answer_without_keyerror():
+    from unittest.mock import MagicMock
+    from app.generate import answer as answer_mod
+    dense_hits = [{"chunk_id": "A", "page": 1, "content": "Refunds 30 days", "rank": 0, "score": 0.7}]
+    with patch.object(pipeline, "embed_texts", return_value=[[0.0]*1536]), \
+         patch.object(pipeline, "dense_search", return_value=dense_hits), \
+         patch.object(answer_mod, "_client") as client:
+        client.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content="30 days [p.1]."))])
+        out = pipeline.answer_for_eval("q", db=None, mode="dense")
+    assert out["answer"] == "30 days [p.1]."
+    assert out["contexts"] == ["Refunds 30 days"]
