@@ -13,7 +13,7 @@ class Document(Base):
     filename = Column(String, nullable=False)
     page_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    content_hash = Column(String, index=True, nullable=True)
+    content_hash = Column(String, nullable=True)  # index is created explicitly in init_db
 
 
 class Chunk(Base):
